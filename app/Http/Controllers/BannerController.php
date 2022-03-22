@@ -2,23 +2,26 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Banner\StoreRequest;
+use App\Http\Requests\Banner\UpdateRequest;
 use App\Http\Resources\BannerResource;
 use App\Models\Banner;
-use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Intervention\Image\Facades\Image;
 
 class BannerController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return bool
      */
-    public function index(): \Illuminate\Http\Response
+    public function index(): bool
     {
         //Все баннеры нам вроде не надо
+        return true;
     }
 
     /**
@@ -27,20 +30,11 @@ class BannerController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request): \Illuminate\Http\JsonResponse
+    public function store(StoreRequest $request): \Illuminate\Http\JsonResponse
     {
         //Добавляем баннер.
 
-        $validator = Validator::make($request->all(), [
-            'category_id' => 'required',
-            'data' => 'required',
-            'preview' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors());
-        }
-
+        $request->validated();
         $data = $request->all();
 
 //        Создаем превью на основе base64 и сохраняем на диске
@@ -64,7 +58,6 @@ class BannerController extends Controller
         //Показываем конкретный баннер
         $banner = Banner::query()->find($banner_id);
 
-
         //ДОБАВИТЬ ПРОВЕРКУ ПРЕМИУМА ДЛЯ ПРЕМИУМ БАННЕРОВ И ПРЕМИУМ КАТЕГОРИЙ,
         // А ТАКЖЕ ДЛЯ ИНДИВИДУАЛЬНЫХ КАТЕГОРИЙ
         return new BannerResource($banner);
@@ -77,17 +70,11 @@ class BannerController extends Controller
      * @param \App\Models\Banner $banner
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, $banner_id): \Illuminate\Http\JsonResponse
+    public function update(UpdateRequest $request, $banner_id): \Illuminate\Http\JsonResponse
     {
         //Обновляем информацию о баннере, заново декодируем превью, сохраняем его, а старое удаляем.
-        $validator = Validator::make($request->all(), [
-            'data' => 'required',
-        ]);
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors());
-        }
-
+        $request->validated();
         $data = $request->all();
 
         $banner = Banner::query()->find($banner_id);
@@ -117,11 +104,25 @@ class BannerController extends Controller
 
     static function uploadBase64($image): string
     {
-        $folderPath = 'preview/' . date('Y-m-d') . '/' ;
-        //$image = $data['preview'];
+        $folderPath = 'preview/' . date('Y-m-d') . '/';
         $image = base64_decode($image);
         $file = $folderPath . uniqid() . '.png';
         Storage::put($file, $image);
+        $img = Image::make(public_path('storage/' . $file));
+
+        $height = $img->height();
+        $width = $img->width();
+        if ($height >= 601) {
+            $img->resize(600, null, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+        }
+        if ($width >= 601) {
+            $img->resize(null, 600, function ($constraint) {
+                $constraint->aspectRatio();
+            });
+        }
+        $img->save(public_path('storage/' . $file));
 
         return $file;
     }

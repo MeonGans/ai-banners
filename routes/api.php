@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,22 +14,27 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::post('register', [\App\Http\Controllers\RegisterController::class, 'register']);
-Route::post('login', [\App\Http\Controllers\RegisterController::class, 'login']);
-Route::get('logout', [\App\Http\Controllers\RegisterController::class, 'logout']);
+Route::post('register', [\App\Http\Controllers\RegisterController::class, 'register'])->name('api.register');
+Route::post('login', [\App\Http\Controllers\RegisterController::class, 'login'])->name('api.login');
+
+
+Route::middleware('auth:api')->group(function () {
+    Route::get('logout', [\App\Http\Controllers\RegisterController::class, 'logout'])->name('api.logout');
+});
+
+Route::middleware('admin')->group(function () {
+    Route::apiResources([
+        //Создание, обновление и удаление баннеров, категорий
+        'banners' => \App\Http\Controllers\BannerController::class,
+        'categories' => \App\Http\Controllers\CategoryController::class,
+    ], ['except' => ['show', 'index']]);
+    //Восстановление удалённой категории
+    Route::post('categories/{category}/restore', [\App\Http\Controllers\CategoryController::class, 'restore']);
+});
 
 Route::apiResources([
     'banners' => \App\Http\Controllers\BannerController::class,
     'categories' => \App\Http\Controllers\CategoryController::class,
-    'bills' => \App\Http\Controllers\BillController::class,
-], ['except' => ['show', 'index']]);
-
-Route::apiResources([
-    'banners' => \App\Http\Controllers\BannerController::class,
-    'categories' => \App\Http\Controllers\CategoryController::class,
-    'bills' => \App\Http\Controllers\BillController::class,
-    'groups' => \App\Http\Controllers\GroupController::class,
 ], ['except' => ['update', 'store', 'destroy']]);
 
-Route::post('categories/{category}/restore', [\App\Http\Controllers\CategoryController::class, 'restore']);
 Route::get('categories/{category}/{option?}', [\App\Http\Controllers\CategoryController::class, 'show']);

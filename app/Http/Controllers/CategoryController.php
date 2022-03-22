@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Category\StoreRequest;
 use App\Http\Resources\BannerResource;
 use App\Http\Resources\CategoryResource;
 use App\Models\Banner;
@@ -19,8 +20,7 @@ class CategoryController extends Controller
      */
     public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        //Вывод всех категорий, отображаем какие из них в премиум группе,
-        // а какие в индивидуальной с привязкой к пользователю
+        //ДОБАВИТЬ ОТСЕИВАНИЕ КАТЕГОРИЙ ИНДИВИДУАЛЬНЫХ И ИХ ОТОБРАЖЕНИЕ В СЛУЧАЕ НЕОБХОДИМОСТИ
 
         $categories = Category::query()->with(['group', 'user'])->get();
         return CategoryResource::collection($categories);
@@ -32,21 +32,9 @@ class CategoryController extends Controller
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request): \Illuminate\Http\JsonResponse
+    public function store(StoreRequest $request): \Illuminate\Http\JsonResponse
     {
-        //Добавление новой категории
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'group_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors());
-        }
-
-        $data = $request->all();
-        $category = Category::query()->create($data);
-
+        $category = Category::query()->create($request->validated());
         return $this->sendResponse($category, 'Category create successfully.');
     }
 
@@ -75,6 +63,8 @@ class CategoryController extends Controller
             default:
                 $banners->orderByDesc('updated_at');
         }
+
+        //ДОБАВИТЬ ПРОВЕРКУ НА ОТОБРАЖЕНИЕ ИНДИВИДУАЛЬНЫХ БАННЕРОВ
         return BannerResource::collection($banners->get());
 
 
@@ -89,20 +79,9 @@ class CategoryController extends Controller
      * @param $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(Request $request, $id): \Illuminate\Http\JsonResponse
+    public function update(StoreRequest $request, $id): \Illuminate\Http\JsonResponse
     {
-        //Обновление информации о выбраной категории (група, название и прочее)
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'group_id' => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors());
-        }
-
-        $data = $request->all();
-        $category = Category::query()->find($id)->update($data);
+        $category = Category::query()->find($id)->update($request->validated());
 
         return $this->sendResponse($category, 'Category update successfully.');
     }
@@ -111,9 +90,9 @@ class CategoryController extends Controller
      * Remove the specified resource from storage.
      *
      * @param \App\Models\Category $category
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy($id): \Illuminate\Http\Response
+    public function destroy($id): \Illuminate\Http\JsonResponse
     {
         $category = Category::destroy($id);
         return $this->sendResponse($category, 'Category delete successfully.');

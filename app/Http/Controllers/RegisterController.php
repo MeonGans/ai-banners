@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
@@ -14,20 +15,19 @@ class RegisterController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function register(Request $request)
+    public function register(Request $request): \Illuminate\Http\JsonResponse
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
         ]);
 
         if($validator->fails()){
-            return $this->sendError('Validation Error.', $validator->errors());
+            return $this->sendError('Validation Error.', $validator->errors(), 422);
         }
 
-        $input = $request->all();
-        $input['password'] = bcrypt($input['password']);
-        $user = User::query()->create($input);
+        $request['password'] = Hash::make($request['password']);
+        $user = User::query()->create($request->toArray());
         $success['name'] =  $user->name;
 
         return $this->sendResponse($success, 'User register successfully.');
@@ -39,36 +39,33 @@ class RegisterController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login(Request $request)
+    public function login(Request $request): \Illuminate\Http\JsonResponse
     {
-        if(Auth::attempt(['email' => $request->email, 'password' => $request->password] )){
-            $user = Auth::user();
-            $success['token'] =  $user->createToken('boards')->accessToken;
-            $success['name'] =  $user->name;
-
-            return $this->sendResponse($success, 'User login successfully.');
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string|email|max:255',
+            'password' => 'required|string|min:4',
+        ]);
+        if ($validator->fails())
+        {
+            return $this->sendError('Validation Error', $validator->errors(), 422);
         }
-        else{
-            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
+        $user = User::query()->where('email', $request->email)->first();
+        if ($user) {
+            if (Hash::check($request->password, $user->password)) {
+                $success['token'] = $user->createToken('Banners')->accessToken;
+                return $this->sendResponse($success, 'User login successfully.');
+            } else {
+                return $this->sendError('Password mismatch', [], 422);
+            }
+        } else {
+            return $this->sendError('User does not exist', [], 422);
         }
     }
 
     public function logout()
     {
-        $user = Auth::user()->token();
-        $user->revoke();
-        $success['name'] = $user->name;
-        return $this->sendResponse($success, 'User logout successfully.');
-        //return UserResource::collection($user);
-     //   return $user->json;
-//        if (Auth::check()) {
-//            $user = Auth::user()->token();
-//            $user->revoke();
-//            $success['name'] = $user->name;
-//            return $this->sendResponse($success, 'User logout successfully.');
-//        }
-//        else{
-//            return $this->sendError('Unauthorised.', ['error'=>'Unauthorised']);
-//        }
+        $token = Auth::user()->token();
+        $token->revoke();
+        return $this->sendResponse('Success', 'User logout successfully.');
     }
 }
