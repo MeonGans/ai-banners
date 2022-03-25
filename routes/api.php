@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::middleware('cors')->group(function () {
+//Route::middleware('cors')->group(function () {
 
     route::get('/', function () {
         return 'HELLO';
@@ -46,4 +46,4 @@ Route::middleware('cors')->group(function () {
 
     Route::get('categories/{category}/{option?}', [\App\Http\Controllers\CategoryController::class, 'show']);
 
-});
+//});
