@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+route::get('/', function() {
+   return 'HELLO';
+});
 
 Route::post('register', [\App\Http\Controllers\RegisterController::class, 'register'])->name('api.register');
 Route::post('login', [\App\Http\Controllers\RegisterController::class, 'login'])->name('api.login');
