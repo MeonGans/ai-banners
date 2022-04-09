@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
         return 'HELLO';
     });
 
-    route::post('/hello', function () {
+    route::post('hello', function () {
         return 'HELLO';
     });
 
@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Route;
     Route::post('login', [\App\Http\Controllers\RegisterController::class, 'login'])->name('api.login');
 
     Route::middleware('auth:api')->group(function () {
-        Route::get('logout', [\App\Http\Controllers\RegisterController::class, 'logout'])->name('api.logout');
+        Route::post('logout', [\App\Http\Controllers\RegisterController::class, 'logout'])->name('api.logout');
     });
 
     Route::middleware('admin')->group(function () {
