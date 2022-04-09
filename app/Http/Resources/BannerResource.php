@@ -18,7 +18,7 @@ class BannerResource extends JsonResource
         return [
             'id' => $this->id,
             'category_id' => $this->category_id,
-            'data' => $this->data,
+            'data' => json_decode($this->data),
             'preview' => $this->preview,
             'is_premium' => $this->is_premium,
             'conversion' => $this->conversion,

@@ -78,7 +78,7 @@ class BannerController extends Controller
         $data = $request->all();
 
         $banner = Banner::query()->find($banner_id);
-
+        $data['data'] = json_encode($data['data']);
         if (isset($data['preview'])) {
             Storage::delete($banner->preview);
 
