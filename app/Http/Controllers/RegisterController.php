@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -60,6 +61,11 @@ class RegisterController extends Controller
         } else {
             return $this->sendError('User does not exist', [], 422);
         }
+    }
+
+    public function user()
+    {
+        return new UserResource(Auth::user());
     }
 
     public function logout()
