@@ -33,17 +33,17 @@ class BannerController extends Controller
     public function store(StoreRequest $request): \Illuminate\Http\JsonResponse
     {
         //Добавляем баннер.
-
         $request->validated();
         $data = $request->all();
 
+        $data['data'] = json_encode($data['data']);
 //        Создаем превью на основе base64 и сохраняем на диске
 
         $data['preview'] = $this->uploadBase64($data['preview']);
 
         $banner = Banner::query()->create($data);
 
-        return $this->sendResponse($banner, 'Banner create successfully.');
+        return $this->sendResponse($banner, 'Banner created successfully.');
 
     }
 
@@ -86,7 +86,7 @@ class BannerController extends Controller
         }
         $banner->update($data);
 
-        return $this->sendResponse($banner, 'Banner update successfully.');
+        return $this->sendResponse($banner, 'Banner updated successfully.');
     }
 
     /**
@@ -98,7 +98,7 @@ class BannerController extends Controller
     public function destroy($banner_id): \Illuminate\Http\JsonResponse
     {
         $banner = Banner::destroy($banner_id);
-        return $this->sendResponse($banner, 'Banner delete successfully.');
+        return $this->sendResponse($banner, 'Banner deleted successfully.');
     }
 
     static function uploadBase64($image): string
