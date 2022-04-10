@@ -32,13 +32,12 @@ use Illuminate\Support\Facades\Route;
     });
 
     Route::middleware('admin')->group(function () {
-        Route::get('banners', [\App\Http\Controllers\BannerController::class, 'index']);
         Route::get('user', [\App\Http\Controllers\RegisterController::class, 'user']);
         Route::apiResources([
             //Создание, обновление и удаление баннеров, категорий
             'banners' => \App\Http\Controllers\BannerController::class,
             'categories' => \App\Http\Controllers\CategoryController::class,
-        ], ['except' => ['show', 'index']]);
+        ], ['except' => ['show']]);
         //Восстановление удалённой категории
         Route::post('categories/{category}/restore', [\App\Http\Controllers\CategoryController::class, 'restore']);
     });
@@ -46,7 +45,7 @@ use Illuminate\Support\Facades\Route;
     Route::apiResources([
         'banners' => \App\Http\Controllers\BannerController::class,
         'categories' => \App\Http\Controllers\CategoryController::class,
-    ], ['except' => ['update', 'store', 'destroy']]);
+    ], ['except' => ['index', 'update', 'store', 'destroy']]);
 
     Route::get('categories/{category}/{option?}', [\App\Http\Controllers\CategoryController::class, 'show']);
 
