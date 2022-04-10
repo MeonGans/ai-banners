@@ -37,8 +37,9 @@ use Illuminate\Support\Facades\Route;
             //Создание, обновление и удаление баннеров, категорий
             'banners' => \App\Http\Controllers\BannerController::class,
             'categories' => \App\Http\Controllers\CategoryController::class,
-        ], ['except' => ['show']]);
+        ], ['except' => ['index', 'show']]);
         //Восстановление удалённой категории
+        Route::get('banners', [\App\Http\Controllers\BannerController::class, 'index']);
         Route::post('categories/{category}/restore', [\App\Http\Controllers\CategoryController::class, 'restore']);
     });
 
@@ -46,6 +47,7 @@ use Illuminate\Support\Facades\Route;
         'banners' => \App\Http\Controllers\BannerController::class,
         'categories' => \App\Http\Controllers\CategoryController::class,
     ], ['except' => ['index', 'update', 'store', 'destroy']]);
+    Route::get('categories', [\App\Http\Controllers\CategoryController::class, 'index']);
 
     Route::get('categories/{category}/{option?}', [\App\Http\Controllers\CategoryController::class, 'show']);
 
