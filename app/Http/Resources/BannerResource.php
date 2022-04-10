@@ -24,6 +24,7 @@ class BannerResource extends JsonResource
             'is_premium' => $this->is_premium,
             'conversion' => $this->conversion,
             'used' => $this->used,
+            'view_count' => $this->view_count,
             'updated_at' => $this->updated_at,
         ];
     }

@@ -10,7 +10,7 @@ class Banner extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['category_id', 'data', 'preview', 'is_premium', 'conversion', 'used'];
+    protected $fillable = ['category_id', 'data', 'preview', 'is_premium', 'conversion', 'used', 'view_count'];
 
     public function category()
     {

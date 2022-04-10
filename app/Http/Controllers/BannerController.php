@@ -7,6 +7,7 @@ use App\Http\Requests\Banner\UpdateRequest;
 use App\Http\Resources\BannerResource;
 use App\Models\Banner;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Facades\Image;
@@ -57,7 +58,7 @@ class BannerController extends Controller
     {
         //Показываем конкретный баннер
         $banner = Banner::query()->find($banner_id);
-
+        event('bannerHasViewed', $banner);
         //ДОБАВИТЬ ПРОВЕРКУ ПРЕМИУМА ДЛЯ ПРЕМИУМ БАННЕРОВ И ПРЕМИУМ КАТЕГОРИЙ,
         // А ТАКЖЕ ДЛЯ ИНДИВИДУАЛЬНЫХ КАТЕГОРИЙ
         return new BannerResource($banner);
