@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\Route;
     });
 
     Route::middleware('admin')->group(function () {
+        Route::get('banners', [\App\Http\Controllers\BannerController::class, 'index']);
         Route::get('user', [\App\Http\Controllers\RegisterController::class, 'user']);
         Route::apiResources([
             //Создание, обновление и удаление баннеров, категорий

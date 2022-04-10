@@ -16,12 +16,12 @@ class BannerController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return bool
+     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index(): bool
+    public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        //Все баннеры нам вроде не надо
-        return true;
+        $banners = Banner::query()->with('category')->get();
+        return BannerResource::collection($banners);
     }
 
     /**
