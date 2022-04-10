@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class BannerResource extends JsonResource
 {
@@ -19,7 +20,7 @@ class BannerResource extends JsonResource
             'id' => $this->id,
             'category_id' => $this->category_id,
             'data' => json_decode($this->data),
-            'preview' => storage_path($this->preview),
+            'preview' => asset(Storage::url($this->preview)),
             'is_premium' => $this->is_premium,
             'conversion' => $this->conversion,
             'used' => $this->used,
