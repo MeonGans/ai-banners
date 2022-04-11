@@ -6,6 +6,7 @@ use App\Http\Requests\Banner\StoreRequest;
 use App\Http\Requests\Banner\UpdateRequest;
 use App\Http\Resources\BannerResource;
 use App\Models\Banner;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -100,6 +101,12 @@ class BannerController extends Controller
     {
         $banner = Banner::destroy($banner_id);
         return $this->sendResponse($banner, 'Banner deleted successfully.');
+    }
+
+    public function restore($id): \Illuminate\Http\JsonResponse
+    {
+        $banner = Banner::withTrashed()->find($id)->restore();
+        return $this->sendResponse($banner, 'Category restore successfully.');
     }
 
     static function uploadBase64($image): string

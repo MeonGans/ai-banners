@@ -41,6 +41,8 @@ use Illuminate\Support\Facades\Route;
         //Восстановление удалённой категории
         Route::get('banners', [\App\Http\Controllers\BannerController::class, 'index']);
         Route::post('categories/{category}/restore', [\App\Http\Controllers\CategoryController::class, 'restore']);
+        Route::post('banners/{banner}/restore', [\App\Http\Controllers\BannerController::class, 'restore']);
+
     });
 
     Route::apiResources([
