@@ -42,7 +42,7 @@ use Illuminate\Support\Facades\Route;
         Route::get('banners', [\App\Http\Controllers\BannerController::class, 'index']);
         Route::post('categories/{category}/restore', [\App\Http\Controllers\CategoryController::class, 'restore']);
         Route::post('banners/{banner}/restore', [\App\Http\Controllers\BannerController::class, 'restore']);
-
+        Route::post('upload_file', [\App\Http\Controllers\FileController::class, 'upload']);
     });
 
     Route::apiResources([

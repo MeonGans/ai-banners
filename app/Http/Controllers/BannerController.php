@@ -22,7 +22,9 @@ class BannerController extends Controller
      */
     public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $banners = Banner::query()->with('category')->orderByDesc('created_at')->get();
+
+        $banners = Banner::query()->with('category', 'files')->orderByDesc('created_at')->get();
+        //dd($banners->find(13)->files);
         return BannerResource::collection($banners);
     }
 
@@ -42,8 +44,13 @@ class BannerController extends Controller
 //        Создаем превью на основе base64 и сохраняем на диске
 
         $data['preview'] = $this->uploadBase64($data['preview']);
-
+        $collection = collect($data['files']);
+        $collection = $collection->map(function ($values) {
+            // dd($values['id']);
+            return $values['id'];
+        });
         $banner = Banner::query()->create($data);
+        $banner->files()->sync($collection->all() ?? []);
 
         return $this->sendResponse($banner, 'Banner created successfully.');
 
@@ -58,7 +65,7 @@ class BannerController extends Controller
     public function show($banner_id): BannerResource
     {
         //Показываем конкретный баннер
-        $banner = Banner::query()->find($banner_id);
+        $banner = Banner::query()->find($banner_id)->with('category', 'files');
         event('bannerHasViewed', $banner);
         //ДОБАВИТЬ ПРОВЕРКУ ПРЕМИУМА ДЛЯ ПРЕМИУМ БАННЕРОВ И ПРЕМИУМ КАТЕГОРИЙ,
         // А ТАКЖЕ ДЛЯ ИНДИВИДУАЛЬНЫХ КАТЕГОРИЙ
