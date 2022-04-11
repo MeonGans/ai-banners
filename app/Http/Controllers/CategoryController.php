@@ -55,13 +55,13 @@ class CategoryController extends Controller
                 $banners->inRandomOrder();
                 break;
             case 'premium':
-                $banners->where('is_premium', true)->orderByDesc('updated_at');
+                $banners->where('is_premium', true)->orderByDesc('created_at');
                 break;
             case 'popular':
                 $banners->orderByDesc('used');
                 break;
             default:
-                $banners->orderByDesc('updated_at');
+                $banners->orderByDesc('created_at');
         }
 
         //ДОБАВИТЬ ПРОВЕРКУ НА ОТОБРАЖЕНИЕ ИНДИВИДУАЛЬНЫХ БАННЕРОВ

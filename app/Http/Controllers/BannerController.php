@@ -22,7 +22,7 @@ class BannerController extends Controller
      */
     public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        $banners = Banner::query()->with('category')->get();
+        $banners = Banner::query()->with('category')->orderByDesc('created_at')->get();
         return BannerResource::collection($banners);
     }
 
