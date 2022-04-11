@@ -106,7 +106,7 @@ class BannerController extends Controller
     public function restore($id): \Illuminate\Http\JsonResponse
     {
         $banner = Banner::withTrashed()->find($id)->restore();
-        return $this->sendResponse($banner, 'Category restore successfully.');
+        return $this->sendResponse($banner, 'Banner restored successfully.');
     }
 
     static function uploadBase64($image): string
