@@ -93,7 +93,13 @@ class BannerController extends Controller
 
             $data['preview'] = $this->uploadBase64($data['preview']);
         }
+        $collection = collect($data['files']);
+        $collection = $collection->map(function ($values) {
+            // dd($values['id']);
+            return $values['id'];
+        });
         $banner->update($data);
+        $banner->files()->sync($collection->all() ?? []);
 
         return $this->sendResponse($banner, 'Banner updated successfully.');
     }
