@@ -20,6 +20,4 @@
     RewriteRule ^ index.php [L]
 	Options +FollowSymlinks
 	Options -SymLinksIfOwnerMatch
-
-	Header always set Access-Control-Allow-Origin "*"
 </IfModule>
