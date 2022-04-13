@@ -65,7 +65,8 @@ class BannerController extends Controller
     public function show($banner_id): BannerResource
     {
         //Показываем конкретный баннер
-        $banner = Banner::query()->find($banner_id)->with('category', 'files');
+        $banner = Banner::query()->find($banner_id);
+        //dd($banner->id);
         event('bannerHasViewed', $banner);
         //ДОБАВИТЬ ПРОВЕРКУ ПРЕМИУМА ДЛЯ ПРЕМИУМ БАННЕРОВ И ПРЕМИУМ КАТЕГОРИЙ,
         // А ТАКЖЕ ДЛЯ ИНДИВИДУАЛЬНЫХ КАТЕГОРИЙ
