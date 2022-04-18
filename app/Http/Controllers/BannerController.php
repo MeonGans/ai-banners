@@ -152,7 +152,9 @@ class BannerController extends Controller
     public function makeDirectory()
     {
         $random = rand(10, 9999);
-        \Illuminate\Support\Facades\File::makeDirectory('storage/files/' . $random);
+        //\Illuminate\Support\Facades\File::makeDirectory('storage/files/' . $random);
+        //Storage::put($random, '');
+        Storage::makeDirectory($random);
         return $random;
     }
 }
