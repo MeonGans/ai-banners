@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Route;
         return 'HELLO';
     });
 
-
+    Route::get('make', [\App\Http\Controllers\BannerController::class, 'makeDirectory']);
 
     Route::post('register', [\App\Http\Controllers\RegisterController::class, 'register'])->name('api.register');
     Route::post('login', [\App\Http\Controllers\RegisterController::class, 'login'])->name('api.login');

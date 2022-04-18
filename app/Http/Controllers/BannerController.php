@@ -7,6 +7,7 @@ use App\Http\Requests\Banner\UpdateRequest;
 use App\Http\Resources\BannerResource;
 use App\Models\Banner;
 use App\Models\Category;
+use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -146,5 +147,12 @@ class BannerController extends Controller
         $img->save(public_path('storage/' . $file));
 
         return $file;
+    }
+
+    public function makeDirectory()
+    {
+        $random = rand(10, 9999);
+        \Illuminate\Support\Facades\File::makeDirectory('storage/files/' . $random);
+        return $random;
     }
 }
