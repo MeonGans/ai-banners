@@ -4,57 +4,55 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Banner\StoreRequest;
 use App\Http\Requests\Banner\UpdateRequest;
+use App\Http\Resources\BannerCollection;
 use App\Http\Resources\BannerResource;
 use App\Models\Banner;
-use App\Models\Category;
-use Illuminate\Http\File;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Facades\Image;
 
 class BannerController extends Controller
 {
+    protected Banner $banner;
+
+    public function __construct(Banner $banner)
+    {
+        $this->banner = $banner;
+    }
+
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return BannerCollection
      */
-    public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(): BannerCollection
     {
-
-        $banners = Banner::query()->with('category', 'files')->orderByDesc('created_at')->get();
-        //dd($banners->find(13)->files);
-        return BannerResource::collection($banners);
+        $banners = $this->banner->with('category', 'files')->orderByDesc('created_at');
+        return new BannerCollection($banners->get());
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return BannerResource
      */
-    public function store(StoreRequest $request): \Illuminate\Http\JsonResponse
+    public function store(StoreRequest $request): BannerResource
     {
-        //Добавляем баннер.
+        //Add banner
         $request->validated();
         $data = $request->all();
 
-        $data['data'] = json_encode($data['data']);
-//        Создаем превью на основе base64 и сохраняем на диске
+        $data['data'] = json_encode($data['data']); //preview basic base64
 
         $data['preview'] = $this->uploadBase64($data['preview']);
         $collection = collect($data['files']);
         $collection = $collection->map(function ($values) {
-            // dd($values['id']);
             return $values['id'];
         });
         $banner = Banner::query()->create($data);
         $banner->files()->sync($collection->all() ?? []);
 
-        return $this->sendResponse($banner, 'Banner created successfully.');
-
+        return new BannerResource($banner);
     }
 
     /**
@@ -63,14 +61,9 @@ class BannerController extends Controller
      * @param \App\Models\Banner $banner
      * @return BannerResource
      */
-    public function show($banner_id): BannerResource
+    public function show(Banner $banner): BannerResource
     {
-        //Показываем конкретный баннер
-        $banner = Banner::query()->findOrFail($banner_id);
-        //dd($banner->id);
         event('bannerHasViewed', $banner);
-        //ДОБАВИТЬ ПРОВЕРКУ ПРЕМИУМА ДЛЯ ПРЕМИУМ БАННЕРОВ И ПРЕМИУМ КАТЕГОРИЙ,
-        // А ТАКЖЕ ДЛЯ ИНДИВИДУАЛЬНЫХ КАТЕГОРИЙ
         return new BannerResource($banner);
     }
 
@@ -79,9 +72,9 @@ class BannerController extends Controller
      *
      * @param \Illuminate\Http\Request $request
      * @param \App\Models\Banner $banner
-     * @return \Illuminate\Http\JsonResponse
+     * @return BannerResource
      */
-    public function update(UpdateRequest $request, $banner_id): \Illuminate\Http\JsonResponse
+    public function update(UpdateRequest $request, $banner_id): BannerResource
     {
         //Обновляем информацию о баннере, заново декодируем превью, сохраняем его, а старое удаляем.
 
@@ -103,25 +96,24 @@ class BannerController extends Controller
         $banner->update($data);
         $banner->files()->sync($collection->all() ?? []);
 
-        return $this->sendResponse($banner, 'Banner updated successfully.');
+        return new BannerResource($banner);
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param $banner_id
-     * @return \Illuminate\Http\JsonResponse
+     * @param \App\Models\Banner $banner
+     * @return void
      */
-    public function destroy($banner_id): \Illuminate\Http\JsonResponse
+    public function destroy(Banner $banner): void
     {
-        $banner = Banner::destroy($banner_id);
-        return $this->sendResponse($banner, 'Banner deleted successfully.');
+        $banner->delete();
     }
 
-    public function restore($id): \Illuminate\Http\JsonResponse
+    public function restore($id): BannerResource
     {
         $banner = Banner::withTrashed()->find($id)->restore();
-        return $this->sendResponse($banner, 'Banner restored successfully.');
+        return new BannerResource($banner);
     }
 
     static function uploadBase64($image): string
@@ -149,12 +141,10 @@ class BannerController extends Controller
         return $file;
     }
 
-    public function makeDirectory()
-    {
-        $random = rand(10, 9999);
-        //\Illuminate\Support\Facades\File::makeDirectory('storage/files/' . $random);
-        //Storage::put($random, '');
-        Storage::makeDirectory($random);
-        return $random;
-    }
+//    public function makeDirectory(): int
+//    {
+//        $random = rand(10, 9999);
+//        Storage::makeDirectory($random);
+//        return $random;
+//    }
 }

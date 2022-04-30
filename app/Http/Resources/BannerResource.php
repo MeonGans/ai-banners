@@ -15,7 +15,6 @@ class BannerResource extends JsonResource
      */
     public function toArray($request)
     {
-        // return parent::toArray($request);
         return [
             'id' => $this->id,
             'category_id' => $this->category_id,

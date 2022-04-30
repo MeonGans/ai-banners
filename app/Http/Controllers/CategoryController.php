@@ -4,38 +4,44 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Category\StoreRequest;
 use App\Http\Resources\BannerResource;
+use App\Http\Resources\CategoryCollection;
 use App\Http\Resources\CategoryResource;
 use App\Models\Banner;
 use App\Models\Category;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Jenssegers\Date\Date;
+//use Illuminate\Http\Request;
+//use Illuminate\Support\Facades\Validator;
+//use Jenssegers\Date\Date;
 
 class CategoryController extends Controller
 {
+    protected Category $category;
+
+    public function __construct(Category $category)
+    {
+        $this->category = $category;
+    }
+
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+     * @return CategoryCollection
      */
-    public function index(): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
+    public function index(): CategoryCollection
     {
-        //ДОБАВИТЬ ОТСЕИВАНИЕ КАТЕГОРИЙ ИНДИВИДУАЛЬНЫХ И ИХ ОТОБРАЖЕНИЕ В СЛУЧАЕ НЕОБХОДИМОСТИ
-
-        $categories = Category::query()->with(['group', 'user'])->get();
-        return CategoryResource::collection($categories);
+        $category = $this->category->with(['group', 'user']);
+        return new CategoryCollection($category->get());
     }
 
     /**
      * Store a newly created resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @param StoreRequest $request
+     * @return CategoryResource
      */
-    public function store(StoreRequest $request): \Illuminate\Http\JsonResponse
+    public function store(StoreRequest $request): CategoryResource
     {
-        $category = Category::query()->create($request->validated());
-        return $this->sendResponse($category, 'Category create successfully.');
+        $category = $this->category->create($request->validated());
+        return new CategoryResource($category);
     }
 
     /**
@@ -46,7 +52,7 @@ class CategoryController extends Controller
      */
     public function show($category_id, $option = null): \Illuminate\Http\Resources\Json\AnonymousResourceCollection
     {
-        //random, news, premium, popular
+        //random, new, premium, popular
         $banners = Banner::query()->where('category_id', $category_id);
 
         //Отображение баннеров выбраной категории + информация о самой категории
@@ -75,32 +81,37 @@ class CategoryController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param \Illuminate\Http\Request $request
-     * @param $id
-     * @return \Illuminate\Http\JsonResponse
+     * @param \App\Models\Category $category
+     * @param \App\Http\Requests\Category\StoreRequest $request
+     * @return CategoryResource
      */
-    public function update(StoreRequest $request, $id): \Illuminate\Http\JsonResponse
+    public function update(Category $category, StoreRequest $request): CategoryResource
     {
-        $category = Category::query()->find($id)->update($request->validated());
-
-        return $this->sendResponse($category, 'Category update successfully.');
+        $category->update($request->validated());
+        return new CategoryResource($category);
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param \App\Models\Category $category
-     * @return \Illuminate\Http\JsonResponse
+     * @return void
      */
-    public function destroy($id): \Illuminate\Http\JsonResponse
+    public function destroy(Category $category): void
     {
-        $category = Category::destroy($id);
-        return $this->sendResponse($category, 'Category delete successfully.');
+        $category->delete();
     }
 
-    public function restore($id): \Illuminate\Http\JsonResponse
+    /**
+     * Restore the specified resource from storage.
+     *
+     * @param $id
+     * @return \App\Http\Resources\CategoryResource
+     */
+
+    public function restore($id): CategoryResource
     {
         $category = Category::withTrashed()->find($id)->restore();
-        return $this->sendResponse($category, 'Category restore successfully.');
+        return new CategoryResource($category);
     }
 }
