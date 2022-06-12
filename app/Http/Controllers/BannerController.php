@@ -42,7 +42,7 @@ class BannerController extends Controller
         $request->validated();
         $data = $request->all();
 
-        $data['data'] = json_encode($data['data']); //preview basic base64
+        $data['data'] = json_encode($data['data'], JSON_FORCE_OBJECT); //preview basic base64
 
         $data['preview'] = $this->uploadBase64($data['preview']);
         $collection = collect($data['files']);
