@@ -18,7 +18,7 @@ class BannerResource extends JsonResource
         return [
             'id' => $this->id,
             'category_id' => $this->category_id,
-            'data' => json_decode($this->data),
+            'data' => json_decode($this->data, true),
             'preview' => asset(Storage::url($this->preview)),
             'files' => FileResource::collection($this->files),
             'is_premium' => $this->is_premium,
